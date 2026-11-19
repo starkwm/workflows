@@ -4,8 +4,8 @@ on:
   workflow_call:
     inputs:
       version-prefix:
-        description: The executable's version output before the space and version tag
-        required: true
+        description: The text before the version tag, without the trailing space. Omit if the executable prints only the tag.
+        required: false
         type: string
       formula-name:
         description: The Homebrew formula name, defaulting to the calling repository name
@@ -56,7 +56,7 @@ jobs:
           [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
           make lint
           make test
-          test "$("$(swift build --show-bin-path)/$PROJECT" --version)" = "$VERSION_PREFIX $TAG"
+          test "$("$(swift build --show-bin-path)/$PROJECT" --version)" = "${VERSION_PREFIX:+$VERSION_PREFIX }$TAG"
           mkdir -p "$RUNNER_TEMP/$RELEASE_ARTIFACT"
           git rev-parse HEAD > "$RUNNER_TEMP/$RELEASE_ARTIFACT/commit"
           if [[ "$(git cat-file -t "refs/tags/$TAG")" == tag ]]; then
